@@ -8,4 +8,18 @@ OptionParser.new do |opts|
   opts.on("-v", "--[no-]verbose", "Run verbosely")
 end.parse!(into: options)
 
-exit(MetadataJsonDeps.run(ARGV, options[:verbose]))
+# search for metadata.json only if ARGV is empty
+metadata_json_candidates = []
+['./metadata.json', '../metadata.json'].each do |f|
+  if File.file? f
+    metadata_json_candidates << f 
+  end
+end
+
+if ARGV.empty? && metadata_json_candidates.empty?
+  raise "please provide the path to metadata.json!"
+end
+
+metadata_json_file = ARGV.empty? ? metadata_json_candidates : ARGV
+
+exit(MetadataJsonDeps.run(metadata_json_file, options[:verbose]))
